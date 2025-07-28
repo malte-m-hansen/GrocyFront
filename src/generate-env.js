@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const envPath = path.join(__dirname, 'src/environment/environment.ts');
+// FIX: Remove extra 'src/' from the path
+const envPath = path.join(__dirname, 'environment', 'environment.ts');
 
 const apiKey = process.env.GROCY_API_KEY || '';
 const apiUrl = process.env.GROCY_API_URL || '';
