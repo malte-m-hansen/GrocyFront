@@ -1,37 +1,91 @@
 # GrocyFront
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.8.
+GrocyFront is an Angular web frontend for Grocy, designed to display and manage stock amounts, locations, and product groups.
+
+## Features
+
+- View and filter products by location and group
+- Sort products by name, stock, last used, last purchased, or Grocy ID
+- Add, consume, and open products
+- View product details in a modal
+- Responsive design
 
 ## Setup
 
-1. Copy the environment template files:
+1. **Environment Configuration**
+
+   The environment file (`src/environment/environment.ts`) is generated automatically during build using environment variables.  
+   For local development, copy the example file and edit as needed:
+
    ```bash
-   cp src/environments/environment.example.ts src/environments/environment.ts
-   cp src/environments/environment.prod.example.ts src/environments/environment.prod.ts
+   cp src/environment/environment.example.ts src/environment/environment.ts
    ```
 
-2. Add your Grocy API key to the environment files.
+   Add your Grocy API key and API URL to `src/environment/environment.ts`.
 
-## Development server
+2. **Install Dependencies**
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+   ```bash
+   npm install
+   ```
 
-## Code scaffolding
+## Development Server
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run the development server:
+
+```bash
+npm start
+```
+
+Navigate to [http://localhost:4200/](http://localhost:4200/). The application will automatically reload if you change any source files.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+To build the project for production:
 
-## Running unit tests
+```bash
+npm run build
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+The build artifacts will be stored in the `dist/` directory.
 
-## Running end-to-end tests
+## Running Unit Tests
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Run unit tests via [Karma](https://karma-runner.github.io):
 
-## Further help
+```bash
+npm test
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Cloudflare Pages Deployment
+
+This project is compatible with [Cloudflare Pages](https://pages.cloudflare.com/):
+
+- The build process automatically generates `src/environment/environment.ts` using environment variables.
+- Set the following environment variables in your Cloudflare Pages project settings:
+  - `GROCY_API_KEY`
+  - `GROCY_API_URL`
+- Use `npm run build` as your build command.
+- Set Build output to `Build output:dist/grocy-front/browser`
+
+## Security Warning
+
+⚠️ **Warning:**  
+When deploying publicly, the Grocy API key is sent in clear text in the request headers.  
+Anyone with access to the deployed page will be able to see the API key in their browser’s network requests.  
+**Do not use a privileged API key or one with write access for public deployments.**  
+Consider using a proxy or server-side solution if you need to keep your API key secret.
+
+## Code Scaffolding
+
+Generate a new component:
+
+```bash
+ng generate component component-name
+```
+
+You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+
+## Further Help
+
+To get more help on the Angular CLI use `ng help` or check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
