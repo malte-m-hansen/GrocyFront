@@ -1,0 +1,185 @@
+
+
+<h1>Grocy Stock Amounts</h1>
+
+<div class="filter-bar">
+  <div class="filter-row">
+    <div class="filter-search-group">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search products..."
+        class="search-input"
+      />
+      <button
+        *ngIf="searchTerm"
+        class="clear-btn search-clear-btn"
+        (click)="clearSearch()"
+        title="Clear search"
+        aria-label="Clear search"
+      >✕</button>
+    </div>
+    <div class="filter-group">
+      <label>Sort:</label>
+      <select [(ngModel)]="sortField" (change)="setSort(sortField)">
+        <option value="default">Grocy ID</option>
+        <option value="name">Name</option>
+        <option value="stockAmount">Stock</option>
+        <option value="lastUsed">Last Used</option>
+        <option value="lastPurchased">Last Purchased</option>
+      </select>
+      <button class="sort-dir-btn" (click)="sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'">
+        {{ sortDirection === 'asc' ? '↑' : '↓' }}
+      </button>
+    </div>
+    <div class="filter-row-spacer"></div>
+    <button class="refresh-btn" (click)="refreshAll()" title="Refresh">&#x21bb; Refresh</button>
+  </div>
+  <div class="filter-row">
+    <div class="filter-group">
+      <label>Location:</label>
+      <select [(ngModel)]="selectedLocation">
+        <option value="">All</option>
+        <option 
+          *ngIf="selectedGroup"
+          disabled
+          value="__locations_in_group">
+          ↓↓ Locations with {{ getGroupName(+selectedGroup) }} ↓↓
+        </option>
+        <option *ngFor="let loc of filteredLocations" [value]="loc.id">{{ loc.name }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Group:</label>
+      <select [(ngModel)]="selectedGroup">
+        <option value="">All</option>
+        <option 
+          *ngIf="selectedLocation"
+          disabled
+          value="__groups_in_location">
+          ↓↓ Groups in {{ getLocationName(+selectedLocation) }} ↓↓
+        </option>
+        <option *ngFor="let group of filteredProductGroups" [value]="group.id">{{ group.name }}</option>
+      </select>
+    </div>
+    <div class="filter-row-spacer"></div>
+    <button class="clear-btn filter-clear-btn" (click)="clearFilters()" title="Clear filters">Clear Filters</button>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loader-container">
+  <!-- From Uiverse.io by Nawsome --> 
+  <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
+    <div class="wheel"></div>
+    <div class="hamster">
+      <div class="hamster__body">
+        <div class="hamster__head">
+          <div class="hamster__ear"></div>
+          <div class="hamster__eye"></div>
+          <div class="hamster__nose"></div>
+        </div>
+        <div class="hamster__limb hamster__limb--fr"></div>
+        <div class="hamster__limb hamster__limb--fl"></div>
+        <div class="hamster__limb hamster__limb--br"></div>
+        <div class="hamster__limb hamster__limb--bl"></div>
+        <div class="hamster__tail"></div>
+      </div>
+    </div>
+    <div class="spoke"></div>
+  </div>
+</div>
+
+
+<div class="product-list" *ngIf="!isLoading">
+  <div class="product-card" *ngFor="let product of filteredProducts">
+    <div class="product-header">
+      <strong class="clickable" (click)="onShowDetails(product)">{{ product.name }}</strong>
+    </div>
+    <div class="product-group">{{ getGroupName(product.product_group_id) }}</div>
+    <div class="product-location">{{ getLocationName(product.location_id) }}</div>
+
+    <div class="stock-row">
+      <span class="stock-amount">Stock: {{ product.stockAmount }}</span>
+<!--       <span class="open-amount" *ngIf="product.stockAmountOpened && product.stockAmountOpened > 0">
+        Open: {{ product.stockAmountOpened }}
+      </span> -->
+    </div>
+    <div class="button-group-row">
+      <button class="action-btn consume" (click)="onConsume(product.id, 1)">−1</button>
+      <button class="action-btn add" (click)="onAdd(product.id, 1)">+1</button>
+    </div>
+    <div class="button-group-row">
+      <button class="action-btn consume" (click)="onConsume(product.id, 5)">−5</button>
+      <button class="action-btn add" (click)="onAdd(product.id, 5)">+5</button>
+    </div>
+<!--     <div class="button-group-row open-row">
+      <button class="action-btn open" (click)="onOpen(product.id, 1)">Open 1</button>
+    </div> -->
+  </div>
+</div>
+
+
+
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeModal()">×</button>
+    <h2>{{ modalProduct?.name }}</h2>
+    <div *ngIf="modalStock">
+        <div>
+    <span class="modal-link-label">Location:</span>
+    <button
+      class="modal-link-btn"
+      *ngIf="modalProduct?.location_id"
+      (click)="filterByLocation(modalProduct.location_id)">
+      {{ getLocationName(modalProduct.location_id) }}
+    </button>
+    <span *ngIf="!modalProduct?.location_id">None</span>
+  </div>
+  <div>
+    <span class="modal-link-label">Group:</span>
+    <button
+      class="modal-link-btn"
+      *ngIf="modalProduct?.product_group_id"
+      (click)="filterByGroup(modalProduct.product_group_id)">
+      {{ getGroupName(modalProduct.product_group_id) }}
+    </button>
+    <span *ngIf="!modalProduct?.product_group_id">None</span>
+  </div>
+      <div class="description-label"><strong>Description:</strong></div>
+      <div class="description-box" [innerHTML]="modalProduct?.description || 'None'"></div>
+      <p><strong>Min Stock Amount:</strong> {{ modalProduct?.min_stock_amount }}</p>
+      <p><strong>Stock:</strong> {{ modalStock.stock_amount }}</p>
+      <p><strong>Opened:</strong> {{ modalStock.stock_amount_opened }}</p>
+      <p><strong>Grocy ID:</strong> {{ modalProduct?.id }}</p>
+<p><strong>Last Purchased: </strong>
+  <span *ngIf="modalStock?.last_purchased; else noPurchase">{{ modalStock?.last_purchased }}</span>
+  <ng-template #noPurchase>Never</ng-template>
+</p>
+<p><strong>Last Used: </strong>
+  <span *ngIf="modalStock?.last_used; else noUsed">{{ modalStock?.last_used }}</span>
+  <ng-template #noUsed>Never</ng-template>
+</p>
+<div class="modal-btn-row">
+  <button
+    class="modal-edit-btn"
+    *ngIf="modalProduct"
+    (click)="openGrocyEdit(modalProduct.id)">
+    Edit in Grocy
+  </button>
+  <button
+    class="action-btn open"
+    *ngIf="modalProduct"
+    (click)="onOpen(modalProduct.id, 1)">
+    Open 1
+  </button>
+</div>
+      <!-- Add more details as needed -->
+    </div>
+    <div *ngIf="!modalStock">
+      <p>Loading...</p>
+    </div>
+  </div>
+</div>
