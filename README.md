@@ -86,6 +86,10 @@ ng generate component component-name
 
 You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
+## AI Disclaimer
+
+This project was built with the assistance of artificial intelligence tools. Some code, documentation, and design decisions may have been generated or influenced by AI. Please review and validate all content for accuracy and suitability for your use case.
+
 ## Further Help
 
 To get more help on the Angular CLI use `ng help` or check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
